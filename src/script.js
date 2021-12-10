@@ -3,6 +3,10 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
 
+// Loading
+const textureLoader = new THREE.TextureLoader()
+const normalTexture = textureLoader.load('./textures/NormalMap.png')
+
 // Debug
 const gui = new dat.GUI()
 
@@ -13,24 +17,66 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 // Objects
-const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+// const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+const geometry = new THREE.SphereBufferGeometry(.5, 64, 64)
 
 // Materials
+const material = new THREE.MeshStandardMaterial()
+material.metalness = 0.7
+material.roughness = 0.2
+material.normalMap = normalTexture
 
-const material = new THREE.MeshBasicMaterial()
-material.color = new THREE.Color(0xff0000)
+material.color = new THREE.Color(0x292929)
 
 // Mesh
 const sphere = new THREE.Mesh(geometry,material)
 scene.add(sphere)
 
 // Lights
-
 const pointLight = new THREE.PointLight(0xffffff, 0.1)
-pointLight.position.x = 2
-pointLight.position.y = 3
-pointLight.position.z = 4
+// pointLight.position.x = 2
+// pointLight.position.y = 3
+// pointLight.position.z = 4
+pointLight.position.set(2, 3, 4)
 scene.add(pointLight)
+
+// Light red
+const pointLight2 = new THREE.PointLight(0xff0000, 2)
+pointLight2.position.set(-1.75, -2.08, -2.53)
+pointLight2.intensity = 3.24
+scene.add(pointLight2)
+
+const redLight = gui.addFolder('Red light')
+
+redLight.add(pointLight2.position, 'y').min(-3).max(3).step(0.01)
+redLight.add(pointLight2.position, 'x').min(-6).max(6).step(0.01)
+redLight.add(pointLight2.position, 'z').min(-3).max(3).step(0.01)
+redLight.add(pointLight2, 'intensity').min(0).max(10).step(0.01)
+
+// const pointLightHelper = new THREE.PointLightHelper(pointLight2, 2)
+// scene.add(pointLightHelper)
+
+// Light blue
+const pointLight3 = new THREE.PointLight(0x199FB1, 2)
+pointLight3.position.set(2.92, 1.79, -2.77)
+pointLight3.intensity = 2.7
+scene.add(pointLight3)
+
+const blueLight = gui.addFolder('Yellow light')
+
+blueLight.add(pointLight3.position, 'y').min(-3).max(3).step(0.01)
+blueLight.add(pointLight3.position, 'x').min(-6).max(6).step(0.01)
+blueLight.add(pointLight3.position, 'z').min(-3).max(3).step(0.01)
+blueLight.add(pointLight3, 'intensity').min(0).max(10).step(0.01)
+
+const secondColor = {
+    color: 0x199FB1
+}
+
+blueLight.addColor(secondColor, 'color')
+    .onChange(() => {
+        pointLight3.color.set(secondColor.color)
+    })
 
 /**
  * Sizes
@@ -73,7 +119,8 @@ scene.add(camera)
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
+    canvas: canvas,
+    alpha: true, 
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
